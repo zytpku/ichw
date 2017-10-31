@@ -1,0 +1,10 @@
+
+1.
+  1）10100010 01101001 11001011 1
+  2）128
+  3）512
+2.一 没有联网
+  二 没有连接到北大网关
+  三 本机DNS解析失败
+  四 上级DNS解析失败
+3.https://github.com/yan2333/slidedemo/blob/master/source.md
