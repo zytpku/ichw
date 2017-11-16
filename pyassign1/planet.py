@@ -1,66 +1,34 @@
 import turtle
-import math
+from math import hypot
+from numpy import *
+def initial(aphelion, perihelion): #在远日点处行星的速度公式
+    return math.sqrt(2 * perihelion * G * M / aphelion / (aphelion + perihelion))
 
-#太阳质量和引力常数
-M_sun = 1.988 * 10**30
-G = 6.6738 * 10**-11
-sun,mer,ven,ear,mar,jup,sat=turtle.Turtle(),turtle.Turtle(),turtle.Turtle(),turtle.Turtle(),turtle.Turtle(),turtle.Turtle(),turtle.Turtle()
+pixel = 3 * 10**9 #图中一像素=天上十光秒
+time = 86400 #图中一秒=天上一日
+M = 1.988 * 10**30 #太阳质量
+G = 6.6738 * 10**-11 / pixel**3 #引力常数，并进行量纲约化
+sun, mer, ven, ear, mar, jup, sat = turtle.Turtle(), turtle.Turtle(), turtle.Turtle(), turtle.Turtle(), turtle.Turtle(), turtle.Turtle(), turtle.Turtle()
+source = {mer: (0.698, 0.460, 'red'), ven: (1.089, 1.075, 'orange'), ear: (1.521, 1.471, 'blue'),
+          mar: (2.492, 2.067, 'gray'), jup: (8.166, 7.405, 'brown'), sat: (15.145, 13.525, 'green')} #行星近日点远日点，单位：10**11米。
+data = {planet: array([0, initial(info[0] * 10**11 / pixel, info[1] * 10**11 / pixel)]) for planet, info in source.items()} #假定行星一开始都在远日点，计算它们的初速度，并用列表存储
 
-#水金地火木土的远日点和近日点，单位：10^11 m。颜色。 数据来源：wikipedia
-data = {mer: (0.698, 0.460, 'red'), ven: (1.089, 1.075, 'orange'), ear: (1.521, 1.471, 'blue'),
-        mar: (2.492, 2.067, 'gray'), jup: (8.166, 7.405, 'brown'), sat: (15.145, 13.525, 'green')}
-
-#根据能量守恒定律，计算远日点速度
-def velocity_at_aphelion(aphelion, perihelion):
-    a = (aphelion + perihelion) / 2
-    c = (aphelion - perihelion) / 2
-    return math.sqrt((a-c) * G * M_sun / (a+c) / a)
-
-#根据牛顿第二定律，计算任何位置的向心加速度
-def acceleration_at_position(P):
-    a = G * M_sun / P[0]**2
-    return a * t
-
-#直角坐标-极坐标转换函数
-def cartesian_to_polar(p):
-    x,y = p[0], p[1]
-    r = math.sqrt(x*x + y*y)
-    if x>=0:
-        return (r, math.asin(y/r))
-    else:
-        return (r, math.pi-math.asin(y/r))
-
-#假定所有行星最开始都位于远日点，计算初速度
-velocity = {planet: (velocity_at_aphelion(value[0] * 10**11, value[1] * 10**11), math.pi/2) for planet, value in data.items()}
-
-#以天为单位刷新数据
-t = 86400
-
-#初始化行星位置
 sun.shape('circle')
 sun.color('yellow')
-for planet, value in data.items():
+for planet, info in source.items():
     planet.shapesize(0.3)
     planet.shape('circle')
-    planet.color(value[2])
+    planet.color(info[2])
     planet.up()
-    planet.forward(value[0]*10**11*10**-9.5) #比例尺：1像素等于10^9.5米
+    planet.forward(info[0] * 10**11 / pixel) #行星前进至远日点
     planet.down()
 
-# 简便起见，记每一个过程中初始速度、速度改变量、最终速度为u(x,y)、v(x,y)、w(x,y)，极坐标为U(r,a)、V(r,a)、W(r,a)。
-# 记行星所在的初始点、最终点为p(x,y)、q(x,y)，转化为极坐标为P(r,a)、Q(r,a)。
-# 前缀pseudo_表示这是屏幕上显示的假想坐标、速度，不带前缀的是真实坐标、速度。
 while 1:
-    for planet in velocity:
-        V = velocity[planet]
-        pseudo_p = planet.position()
-        p = (pseudo_p[0] * 10**9.5, pseudo_p[1] * 10**9.5)
-        P = cartesian_to_polar(p)
-        U = (acceleration_at_position(P), math.pi + P[1])
-        w = (V[0] * math.cos(V[1]) + U[0] * math.cos(U[1]), V[0]*math.sin(V[1]) + U[0]*math.sin(U[1]))
-        W = cartesian_to_polar(w)
-        q = (p[0] + w[0] * t, p[1] + w[1] * t)
-        pseudo_q = (q[0] / 10**9.5, q[1] / 10**9.5)
-        planet.speed(W[0]* 10**-3)#把真实速度减慢10000倍演示
-        planet.goto(pseudo_q)
-        velocity[planet] = W
+    for planet, velocity in data.items():
+        x, y = planet.position() #获取位置
+        r = hypot(x, y) #计算该位置与太阳的距离
+        acceleration = array([- G * M * x / r**3, - G * M * y / r**3]) #计算行星的加速度，以向量表示
+        velocity += acceleration * [time] #计算行星末速度，以向量表示
+        planet.speed(hypot(velocity[0], velocity[1]) * time) #求速度向量的模，然后放大t倍用于演示
+        planet.goto(x + velocity[0] * time, y + velocity[1] * time) #计算下一时刻行星位置并去往
+        data[planet] = velocity #末速度存储覆盖初速度
