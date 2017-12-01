@@ -65,7 +65,7 @@
 |1700011817|[https://github.com/caviare2017/ichw](https://github.com/caviare2017/ichw)|
 |1700011820|[https://github.com/CeressGoo/ichw](https://github.com/CeressGoo/ichw)|
 |1700011823|[https://github.com/yuzhou-at-pku/ichw](https://github.com/yuzhou-at-pku/ichw)|
-|1700011827|[https://github.com/felineshadow/ichw-1](https://github.com/felineshadow/ichw)|
+|1700011827|[https://github.com/felineshadow/ichw-1](https://github.com/felineshadow/ichw-1)|
 |1700012459|[https://github.com/JiamingChi/ichw](https://github.com/JiamingChi/ichw)|
 |1700012463|[https://github.com/jiangxiaofei/ichw](https://github.com/jiangxiaofei/ichw)|
 |1700012608|[https://github.com/zhongxinghong/ichw](https://github.com/zhongxinghong/ichw)|
